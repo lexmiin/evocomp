@@ -18,10 +18,10 @@ You can also find Genetic Programming (GP) algorithm and Ant Colony Optimization
 
 ```bash
 # Install directly from GitHub
-pip install git+https://github.com/lex-unix/evolutionary-computations.git
+pip install git+https://github.com/lexmiin/evolutionary-computations.git
 
 # Or clone and install in development mode
-git clone https://github.com/lex-unix/evolutionary-computations.git
+git clone https://github.com/lexmiin/evolutionary-computations.git
 cd evolutionary-computations
 pip install -e .
 ```
