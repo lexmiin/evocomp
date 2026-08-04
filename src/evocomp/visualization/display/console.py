@@ -4,8 +4,10 @@ from evocomp.visualization.display.formatters import calculate_column_widths
 from evocomp.visualization.display.formatters import print_table
 from evocomp.visualization.study.result import StudyResult
 
+_default_display_config = DisplayConfig()
 
-def display(results: list[StudyResult], config: DisplayConfig = DisplayConfig()) -> None:
+
+def display(results: list[StudyResult], config: DisplayConfig = _default_display_config) -> None:
     if not results:
         print('No results to display')
         return
