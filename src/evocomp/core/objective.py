@@ -56,8 +56,8 @@ class Sphere(Objective):
     def bounds(self):
         return np.array([[-5.0, 5.0]])
 
-    def evaluate(self, x: NDArray):
-        return x[0] ** 2
+    def evaluate(self, solution: NDArray):
+        return solution[0] ** 2
 
 
 class Sphere3D(Objective):
@@ -65,5 +65,5 @@ class Sphere3D(Objective):
     def bounds(self):
         return np.array([[-5.0, 5.0] for _ in range(9)])
 
-    def evaluate(self, x: NDArray):
-        return np.sum(x**2)
+    def evaluate(self, solution: NDArray):
+        return np.sum(solution**2)
