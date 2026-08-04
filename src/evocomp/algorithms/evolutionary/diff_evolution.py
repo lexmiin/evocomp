@@ -74,7 +74,7 @@ class DifferentialEvolution(Optimizer):
             idxs = np.random.choice(idxs_pool, 3, replace=False)
 
             mutant = self.__create_mutant(population, idxs)
-            mutant = self._clip_bounds(mutant, objective.bounds)
+            mutant.solution = self._clip_bounds(mutant.solution, objective.bounds)
 
             trial = self.__create_trial(candidate, mutant)
 
