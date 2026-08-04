@@ -16,9 +16,13 @@
         inherit system;
       };
     in {
+      formatter = pkgs.alejandra;
+
       devShells.default = pkgs.mkShell {
         packages = [
           pkgs.uv
+          pkgs.git-cliff
+          pkgs.zizmor
         ];
       };
     }

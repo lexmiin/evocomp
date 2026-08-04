@@ -1,0 +1,144 @@
+name: Prepare Release
+
+run-name: Prepare v${{ inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version in X.Y.Z format (without the v prefix)
+        required: true
+        type: string
+
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  prepare:
+    name: Prepare release pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the complete release history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate release input
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          TAG: v${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]]; then
+            echo "Release preparation must run from $DEFAULT_BRANCH, not $GITHUB_REF_NAME."
+            exit 1
+          fi
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: $RELEASE_VERSION (expected X.Y.Z)"
+            exit 1
+          fi
+          set +e
+          tag_lookup="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" 2>&1)"
+          tag_status=$?
+          set -e
+          if (( tag_status == 0 )); then
+            echo "Tag $TAG already exists."
+            exit 1
+          fi
+          if [[ "$tag_lookup" != *"HTTP 404"* ]]; then
+            echo "$tag_lookup"
+            exit "$tag_status"
+          fi
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: 0.11.18
+
+      - name: Test the release preparation helper
+        run: uv run --frozen python -m unittest discover -s tests
+
+      - name: Update package version and lockfile
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          uv run --frozen python scripts/prepare_release.py prepare "$RELEASE_VERSION"
+          uv lock
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
+        with:
+          version: v2.13.1
+          config: cliff.toml
+          args: --verbose --tag v${{ inputs.version }}
+          github_token: ${{ github.token }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Validate generated release notes
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: >-
+          uv run --frozen python scripts/prepare_release.py notes "$RELEASE_VERSION"
+          --output "$RUNNER_TEMP/release-notes.md"
+
+      - name: Upload prepared release files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: prepared-release
+          path: |
+            pyproject.toml
+            uv.lock
+            CHANGELOG.md
+          if-no-files-found: error
+          retention-days: 1
+
+  open-pull-request:
+    name: Open release pull request
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Download prepared release files
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: prepared-release
+          path: ./
+
+      - name: Create or update release pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ github.token }}
+          base: ${{ github.event.repository.default_branch }}
+          branch: release/v${{ inputs.version }}
+          delete-branch: true
+          commit-message: "release: prepare v${{ inputs.version }}"
+          title: "release: prepare v${{ inputs.version }}"
+          body: |
+            Prepares release `v${{ inputs.version }}`.
+
+            Review the package version, lockfile, and generated changelog before merging.
+          add-paths: |
+            pyproject.toml
+            uv.lock
+            CHANGELOG.md
