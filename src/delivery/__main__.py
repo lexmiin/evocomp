@@ -102,7 +102,7 @@ for idx, courier in couriers.iterrows():
 
             sectors[courier_sector] = sectors[courier_sector].drop(parcel_idx)
 
-    couriers.loc[idx, 'assigned_parcels'] = json.dumps(assigned_parcels)  # type: ignore
+    couriers.loc[idx, 'assigned_parcels'] = json.dumps(assigned_parcels)
 
     if len(assigned_parcels) > 0:
         print(

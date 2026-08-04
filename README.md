@@ -17,13 +17,39 @@ You can also find Genetic Programming (GP) algorithm and Ant Colony Optimization
 ## Installation
 
 ```bash
-# Install directly from GitHub
-pip install git+https://github.com/lexmiin/evolutionary-computations.git
+# Install directly from GitHub into a uv-managed environment
+uv add git+https://github.com/lexmiin/evolutionary-computations.git
 
-# Or clone and install in development mode
+# Include the optional visualization feature
+uv add 'evocomp[visual] @ git+https://github.com/lexmiin/evolutionary-computations.git'
+
+# Or clone and set up the development environment
 git clone https://github.com/lexmiin/evolutionary-computations.git
 cd evolutionary-computations
-pip install -e .
+uv sync
+```
+
+The project pins Python 3.14 in `.python-version`. `uv sync` installs that
+Python version when necessary, creates `.venv`, and installs the locked
+dependencies. Run project commands without manually activating the environment:
+
+```bash
+uv run python examples/basic.py
+```
+
+Visualization and spreadsheet export are available as an optional feature:
+
+```bash
+uv sync --extra visual
+uv run --extra visual python examples/study.py
+```
+
+Development tools are installed by default and run through `uv`:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run --extra visual ty check src scripts examples
 ```
 
 ## Quick Start

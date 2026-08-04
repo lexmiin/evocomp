@@ -4,34 +4,35 @@ version = "0.1.0"
 authors = [{ name = "Lex Miin", email = "hello@lexunix.me" }]
 description = "Evolutionary algorithms implementation"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-  "matplotlib>=3.8.0",
   "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+visual = [
+  "matplotlib>=3.8.0",
   "openpyxl>=3.1.2",
   "pandas>=2.1.1",
+]
+
+[dependency-groups]
+dev = [
+  "ruff>=0.9.0",
   "scipy>=1.11.4",
+  "ty>=0.0.64",
 ]
 
 [build-system]
-requires = ["hatchling>=1.12.1", "hatch-vcs"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build]
-dev-mode-dirs = ["src"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/evocomp"]
-
-[tool.hatch.metadata]
-allow-direct-references = true
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
 line-length = 100
-ignore = ["E741", "E203"]
 
 [tool.ruff.lint]
 extend-select = ["UP019", "I001"]
+ignore = ["E741", "E203"]
 
 [tool.ruff.format]
 quote-style = "single"
@@ -41,5 +42,5 @@ docstring-code-format = true
 [tool.ruff.lint.isort]
 force-single-line = true
 
-[tool.mypy]
-plugins = "numpy.typing.mypy_plugin"
+[tool.uv.dependency-groups]
+dev = { requires-python = ">=3.11" }
