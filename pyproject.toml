@@ -2,7 +2,7 @@
 name = "evocomp"
 version = "0.1.0"
 authors = [{ name = "Lex Miin", email = "hello@lexunix.me" }]
-description = "Evolutionary algorithms implementation"
+description = "Evolutionary algorithms"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -38,6 +38,10 @@ ignore = ["E741", "E203"]
 quote-style = "single"
 indent-style = "space"
 docstring-code-format = true
+exclude = [
+  './examples/**/*.py',
+  './README.md'
+]
 
 [tool.ruff.lint.isort]
 force-single-line = true

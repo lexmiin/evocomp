@@ -6,10 +6,10 @@ from .study.result import StudyResult
 from .study.runner import study
 
 __all__ = [
-    'StudyResult',
-    'study',
     'DisplayConfig',
+    'StudyResult',
     'display',
-    'plot_histories',
     'export_results',
+    'plot_histories',
+    'study',
 ]

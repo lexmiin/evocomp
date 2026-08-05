@@ -1,10 +1,7 @@
 import copy
 import random
 from collections import deque
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Tuple
+from collections.abc import Callable
 
 import numpy as np
 
@@ -12,8 +9,8 @@ import numpy as np
 class GeneticProgramming:
     def __init__(
         self,
-        terminals: List[str],
-        functions: Dict[str, Callable],
+        terminals: list[str],
+        functions: dict[str, Callable],
         head_len: int = 20,
         total_genes: int = 4,
         max_arity: int = 2,
@@ -41,12 +38,12 @@ class GeneticProgramming:
         self.epochs = epochs
         self.size = size
 
-    def generate_gene(self) -> List[str]:
+    def generate_gene(self) -> list[str]:
         head = [random.choice(self.elements) for _ in range(self.head_len)]
         tail = [random.choice(self.terminals) for _ in range(self.tail_len)]
         return head + tail
 
-    def init_population(self) -> List[List[List[str]]]:
+    def init_population(self) -> list[list[list[str]]]:
         return [[self.generate_gene() for _ in range(self.total_genes)] for _ in range(self.size)]
 
     def eval(self, expression, value):
@@ -74,7 +71,7 @@ class GeneticProgramming:
         except ZeroDivisionError:
             return 0
 
-    def error(self, chromosome: List[List[str]], x: float, y: float) -> float:
+    def error(self, chromosome: list[list[str]], x: float, y: float) -> float:
         pred = sum([self.eval(''.join(gene), x) for gene in chromosome])
         return np.sqrt(np.power(pred - y, 2))
 
@@ -85,7 +82,7 @@ class GeneticProgramming:
             chromosome.append(list(chromo_str[start:end]))
         return chromosome
 
-    def join_chromosome(self, chromosome: List[List[str]]):
+    def join_chromosome(self, chromosome: list[list[str]]):
         return ''.join(''.join(gene) for gene in chromosome)
 
     def mutation(self, chromosome):
@@ -99,7 +96,7 @@ class GeneticProgramming:
         chromosome[gene_] = new_gene
         return chromosome
 
-    def one_point_recombination(self, chromo_a: List[List[str]], chromo_b: List[List[str]]):
+    def one_point_recombination(self, chromo_a: list[list[str]], chromo_b: list[list[str]]):
         if self.recombination_rate < random.random():
             return chromo_a, chromo_b
         point = random.choice(np.arange(self.head_len))
@@ -109,7 +106,7 @@ class GeneticProgramming:
         new_chromo_b = chromo_str_b[:point] + chromo_str_a[point:]
         return self.split_to_genes(new_chromo_a), self.split_to_genes(new_chromo_b)
 
-    def gene_recombination(self, chromo_a: List[List[str]], chromo_b: List[List[str]]):
+    def gene_recombination(self, chromo_a: list[list[str]], chromo_b: list[list[str]]):
         if self.recombination_rate < random.random():
             return chromo_a, chromo_b
         gene = random.choice(np.arange(self.total_genes))
@@ -187,7 +184,7 @@ class GeneticProgramming:
     def predict(self, chromosome, x: float):
         return sum([self.eval(''.join(gene), x) for gene in chromosome])
 
-    def solve(self, train_data: List[Tuple[float, float]]):
+    def solve(self, train_data: list[tuple[float, float]]):
         population = self.init_population()
         best_fitness, best_chromo = None, None
         fitnesses: list[float] = []

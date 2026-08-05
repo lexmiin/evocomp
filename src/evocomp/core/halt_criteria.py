@@ -44,8 +44,7 @@ class SolutionConvergence(HaltCriteria):
         for i in range(n):
             for j in range(i + 1, n):
                 distance = self.euclidean_distance(children[i].solution, children[j].solution)
-                if distance > max_distance:
-                    max_distance = distance
+                max_distance = max(max_distance, distance)
         return max_distance < self.e
 
     def __str__(self) -> str:

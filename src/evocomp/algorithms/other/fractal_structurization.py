@@ -1,5 +1,4 @@
 from typing import Literal
-from typing import Tuple
 
 import numpy as np
 from numpy import random
@@ -56,7 +55,7 @@ class FractalStructurization(Optimizer):
     def __mean_fitness(self, population: list[Candidate]):
         return np.mean([candidate.fitness for candidate in population])
 
-    def __get_random_indexes(self, size: int) -> Tuple[NDArray, NDArray]:
+    def __get_random_indexes(self, size: int) -> tuple[NDArray, NDArray]:
         i = random.choice(np.arange(size), size=size, replace=False)
         j = np.zeros(size, dtype=int)
         for idx in range(size):
@@ -64,12 +63,12 @@ class FractalStructurization(Optimizer):
             j[idx] = random.choice(list(choices))
         return i, j
 
-    def __form_pairs(self, population: list[Candidate]) -> list[Tuple[Candidate, Candidate]]:
+    def __form_pairs(self, population: list[Candidate]) -> list[tuple[Candidate, Candidate]]:
         size = len(population)
         i, j = self.__get_random_indexes(size)
         return [(population[i[k]], population[j[k]]) for k in range(size)]
 
-    def __mean_pairs(self, pairs: list[Tuple[Candidate, Candidate]]) -> list[Candidate]:
+    def __mean_pairs(self, pairs: list[tuple[Candidate, Candidate]]) -> list[Candidate]:
         return [Candidate((pair[0].solution + pair[1].solution) / 2) for pair in pairs]
 
     def __delta(self, solution: float | NDArray, bound_diff: float | NDArray):
@@ -104,7 +103,7 @@ class FractalStructurization(Optimizer):
         ]
         return [candidate for candidate in new_population if candidate is not None]
 
-    def __population_c(self, pairs: list[Tuple[Candidate, Candidate]], objective: Objective):
+    def __population_c(self, pairs: list[tuple[Candidate, Candidate]], objective: Objective):
         population = []
         for pair in pairs:
             r = random.choice([-1, 1])

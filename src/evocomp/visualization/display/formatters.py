@@ -41,10 +41,10 @@ def print_table(
     for result in results:
         solution_str = ', '.join(str(x) for x in np.round(result.solution, config.float_precision))
         row = (
-            f"{result.param_value:<{widths['param']}} "
-            f"{result.fitness:<{widths['fitness']}.{config.float_precision}f} "
-            f"{solution_str:<{widths['solution']}} "
-            f"{result.epochs:<{widths['epochs']}} "
-            f"{result.time:<{widths['time']}.{config.time_precision}f}"
+            f'{result.param_value:<{widths["param"]}} '
+            f'{result.fitness:<{widths["fitness"]}.{config.float_precision}f} '
+            f'{solution_str:<{widths["solution"]}} '
+            f'{result.epochs:<{widths["epochs"]}} '
+            f'{result.time:<{widths["time"]}.{config.time_precision}f}'
         )
         print(row)

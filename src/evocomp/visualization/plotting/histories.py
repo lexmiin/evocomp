@@ -27,7 +27,7 @@ def plot_histories(
     plt.grid(True)
 
     if save:
-        filename = f"{algorithm_name.lower().replace(' ', '_')}_{function_name.lower().replace(' ', '_')}.png"
+        filename = f'{algorithm_name.lower().replace(" ", "_")}_{function_name.lower().replace(" ", "_")}.png'
         plt.savefig(filename, bbox_inches='tight', dpi=300)
 
     plt.show()

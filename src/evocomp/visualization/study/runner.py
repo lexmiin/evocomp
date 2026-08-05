@@ -1,6 +1,6 @@
 import time
-from typing import Callable
-from typing import Sequence
+from collections.abc import Callable
+from collections.abc import Sequence
 from typing import TypeVar
 
 from evocomp.core.objective import Objective

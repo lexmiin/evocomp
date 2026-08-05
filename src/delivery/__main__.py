@@ -106,7 +106,7 @@ for idx, courier in couriers.iterrows():
 
     if len(assigned_parcels) > 0:
         print(
-            f"Courier {courier['courier_id']} ({courier['type']}) assigned parcels: {list(map(int, assigned_parcels))}"
+            f'Courier {courier["courier_id"]} ({courier["type"]}) assigned parcels: {list(map(int, assigned_parcels))}'
         )
 
 
@@ -134,7 +134,7 @@ for idx, courier in couriers_multi_parcels.iterrows():
         cost = pedestrian_cost(dist, walk_speed, hourly_salary)
 
     print(
-        f"Delivery for courier {courier['courier_id']} ({courier['type']}) costs: {round(cost, 2)}"
+        f'Delivery for courier {courier["courier_id"]} ({courier["type"]}) costs: {round(cost, 2)}'
     )
     total_cost += cost
 
@@ -151,7 +151,7 @@ for idx, courier in couriers_single_parcel.iterrows():
         cost = pedestrian_cost(dist, walk_speed, hourly_salary)
 
     print(
-        f"Delivery for courier {courier['courier_id']} ({courier['type']}) costs: {round(cost, 2)}"
+        f'Delivery for courier {courier["courier_id"]} ({courier["type"]}) costs: {round(cost, 2)}'
     )
     total_cost += cost
 

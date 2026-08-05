@@ -18,7 +18,7 @@ from .core.objective import Sphere3D
 from .core.objective import ThreeHumpCamel
 from .core.optimizer import Optimizer
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     # Algorithms
     'DifferentialEvolution',
     'EvoStrategy',
