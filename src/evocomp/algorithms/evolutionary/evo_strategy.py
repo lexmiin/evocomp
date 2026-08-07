@@ -9,6 +9,47 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def evo_strategy(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    lmda: int = 10,
+    mu: int = 20,
+    std: float = 0.5,
+    strategy: Literal['comma', 'plus'] = 'plus',
+    epochs: int = 100,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'EvoStrategy':
+    """Optimize an objective with an Evolution Strategy.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        lmda: Number of offspring generated per parent.
+        mu: Number of parents retained for the next generation.
+        std: Standard deviation used for Gaussian mutation.
+        strategy: Selection strategy. ``'plus'`` lets parents compete with
+            offspring, while ``'comma'`` selects only from offspring.
+        epochs: Maximum number of iterations.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+    optimizer = EvoStrategy(
+        operation=operation,
+        lmda=lmda,
+        mu=mu,
+        std=std,
+        strategy=strategy,
+        epochs=epochs,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class EvoStrategy(Optimizer):
     """Evolution Strategy (ES) algorithm for global optimization.
 

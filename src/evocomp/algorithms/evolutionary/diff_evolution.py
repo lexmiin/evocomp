@@ -10,6 +10,47 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def differential_evolution(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    f: float = 0.8,
+    crossover_rate: float = 0.3,
+    epochs: int = 100,
+    size: int = 100,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'DifferentialEvolution':
+    """Optimize an objective with Differential Evolution.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        f: Differential weight (mutation factor) in range [0, 2].
+            Controls the amplification of differential variation.
+        crossover_rate: Probability of crossover in range [0, 1].
+            Higher values increase exploration.
+        epochs: Maximum number of iterations.
+        size: Population size. Larger populations provide better exploration
+            but require more function evaluations.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+
+    optimizer = DifferentialEvolution(
+        operation=operation,
+        f=f,
+        crossover_rate=crossover_rate,
+        epochs=epochs,
+        size=size,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class DifferentialEvolution(Optimizer):
     """Differential Evolution (DE) algorithm for global optimization.
 

@@ -31,12 +31,11 @@ uv add 'evocomp[visual]'
 ```python
 import evocomp
 
-# Basic usage with Differential Evolution
-optimizer = evocomp.DifferentialEvolution(f=2, operation='min', epochs=100)
-optimizer.optimize(evocomp.Easom())
+# One-shot functional usage with Differential Evolution
+optimizer = evocomp.differential_evolution(evocomp.Easom(), f=2, epochs=100)
 print(optimizer.best_candidate)
 
-# Using convergence criteria and maximizing function instead
+# The optimizer classes remain available for reusable or deferred setup
 optimizer = evocomp.DifferentialEvolution(
     f=2,
     operation='max',

@@ -12,6 +12,46 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def deformed_stars(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    k: int = 3,
+    compression_rate: float = 4.0,
+    a: int = 3,
+    epochs: int = 50,
+    size: int = 10,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'DeformedStars':
+    """Optimize an objective with the Deformed Stars algorithm.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        k: Coefficient controlling the spread of R-triangle points.
+        compression_rate: Rate at which U-triangles compress toward their best points.
+        a: Amplitude for parallel transfer operations.
+        epochs: Maximum number of iterations.
+        size: Population size.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+    optimizer = DeformedStars(
+        operation=operation,
+        k=k,
+        compression_rate=compression_rate,
+        a=a,
+        epochs=epochs,
+        size=size,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class DeformedStars(Optimizer):
     """Deformed Stars algorithm for global optimization.
 

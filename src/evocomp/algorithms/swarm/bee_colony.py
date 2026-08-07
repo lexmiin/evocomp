@@ -9,6 +9,41 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def bee_colony(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    max_stagnation: int = 10,
+    epochs: int = 100,
+    size: int = 100,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'BeeColony':
+    """Optimize an objective with Artificial Bee Colony optimization.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        max_stagnation: Maximum iterations without improvement before a food
+            source is abandoned.
+        epochs: Maximum number of iterations.
+        size: Colony size.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+    optimizer = BeeColony(
+        operation=operation,
+        max_stagnation=max_stagnation,
+        epochs=epochs,
+        size=size,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class BeeColony(Optimizer):
     """Artificial Bee Colony (ABC) algorithm for global optimization.
 

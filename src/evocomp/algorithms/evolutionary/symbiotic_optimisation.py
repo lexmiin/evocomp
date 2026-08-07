@@ -9,6 +9,43 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def symbiotic_optimisation(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    bf1: int = 1,
+    bf2: int = 2,
+    epochs: int = 100,
+    size: int = 100,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'SymbioticOptimisation':
+    """Optimize an objective with Symbiotic Organism Search.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        bf1: Benefit factor for the first organism in the mutualism phase.
+        bf2: Benefit factor for the second organism in the mutualism phase.
+        epochs: Maximum number of iterations.
+        size: Population size.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+    optimizer = SymbioticOptimisation(
+        operation=operation,
+        bf1=bf1,
+        bf2=bf2,
+        epochs=epochs,
+        size=size,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class SymbioticOptimisation(Optimizer):
     """Symbiotic Organism Search (SOS) algorithm for global optimization.
 

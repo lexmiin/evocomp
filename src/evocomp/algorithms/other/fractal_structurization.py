@@ -10,6 +10,46 @@ from evocomp.core.objective import Objective
 from evocomp.core.optimizer import Optimizer
 
 
+def fractal_structurization(
+    objective: Objective,
+    *,
+    operation: Literal['min', 'max'] = 'min',
+    m: int = 7,
+    temperature: float = 100,
+    std: float = 0.1,
+    epochs: int = 20,
+    size: int = 50,
+    halt_criteria: HaltCriteria | None = None,
+) -> 'FractalStructurization':
+    """Optimize an objective with Fractal Structurization.
+
+    Args:
+        objective: Objective function to optimize.
+        operation: Direction of optimization (``'min'`` or ``'max'``).
+        m: Local search intensity.
+        temperature: Initial temperature for temperature-based acceptance.
+        std: Standard deviation used for perturbations.
+        epochs: Maximum number of iterations.
+        size: Population size.
+        halt_criteria: Optional convergence criteria to stop optimization
+            before reaching maximum epochs.
+
+    Returns:
+        The fitted optimizer, including the best candidate and optimization history.
+    """
+    optimizer = FractalStructurization(
+        operation=operation,
+        m=m,
+        temperature=temperature,
+        std=std,
+        epochs=epochs,
+        size=size,
+        halt_criteria=halt_criteria,
+    )
+    optimizer.optimize(objective)
+    return optimizer
+
+
 class FractalStructurization(Optimizer):
     """Fractal Structurization algorithm for global optimization.
 
