@@ -26,40 +26,6 @@ Visualization and spreadsheet export are available as an optional feature:
 uv add 'evocomp[visual]'
 ```
 
-## Development
-
-Clone the repository and install the locked development environment:
-
-```bash
-git clone https://github.com/lexmiin/evocomp.git
-cd evocomp
-uv sync
-```
-
-The project pins Python 3.14 in `.python-version`. `uv sync` installs that
-Python version when necessary, creates `.venv`, and installs the locked
-dependencies. Run project commands without manually activating the environment:
-
-```bash
-uv run python examples/basic.py
-```
-
-Run examples that use the optional visualization dependencies with the `visual`
-extra:
-
-```bash
-uv sync --extra visual
-uv run --extra visual python examples/study.py
-```
-
-Development tools are installed by default and run through `uv`:
-
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run --extra visual ty check src scripts examples
-```
-
 ## Quick Start
 
 ```python
@@ -124,4 +90,38 @@ class CustomFunction(Objective):
     def evaluate(self, solution: np.ndarray) -> float:
         x, y = solution
         return (x + 2*y - 7)**2 + (2*x + y - 5)**2
+```
+
+## Development
+
+Clone the repository and install the locked development environment:
+
+```bash
+git clone https://github.com/lexmiin/evocomp.git
+cd evocomp
+uv sync
+```
+
+The project pins Python 3.14 in `.python-version`. `uv sync` installs that
+Python version when necessary, creates `.venv`, and installs the locked
+dependencies. Run project commands without manually activating the environment:
+
+```bash
+uv run python examples/basic.py
+```
+
+Run examples that use the optional visualization dependencies with the `visual`
+extra:
+
+```bash
+uv sync --extra visual
+uv run --extra visual python examples/study.py
+```
+
+Development tools are installed by default and run through `uv`:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run --extra visual ty check src scripts examples
 ```
