@@ -44,11 +44,11 @@ class SymbioticOptimisation(Optimizer):
         self.bf2 = bf2
         self.size = size
 
-    def __get_random_index(self, current_index: int):
+    def _get_random_index(self, current_index: int):
         idx_pool = np.delete(np.arange(self.size), current_index)
         return random.choice(idx_pool)
 
-    def __mutualism_phase(
+    def _mutualism_phase(
         self,
         i: int,
         x_best: Candidate,
@@ -56,7 +56,7 @@ class SymbioticOptimisation(Optimizer):
         new_population: list[Candidate],
         objective: Objective,
     ):
-        j = self.__get_random_index(i)
+        j = self._get_random_index(i)
         xj = population[j]
         xi = population[i]
         mutual = (xi.solution + xj.solution) / 2
@@ -69,7 +69,7 @@ class SymbioticOptimisation(Optimizer):
         new_population[i] = self._compare_candidates(xi, xi_new)
         new_population[j] = self._compare_candidates(xj, xj_new)
 
-    def __commensalism_phase(
+    def _commensalism_phase(
         self,
         i: int,
         x_best: Candidate,
@@ -77,7 +77,7 @@ class SymbioticOptimisation(Optimizer):
         new_population: list[Candidate],
         objective: Objective,
     ):
-        j = self.__get_random_index(i)
+        j = self._get_random_index(i)
         xj = population[j]
         xi = population[i]
         xi_new = xi.solution + random.uniform(-1, 1) * (x_best.solution - xj.solution)
@@ -85,14 +85,14 @@ class SymbioticOptimisation(Optimizer):
         xi_new = Candidate(xi_new, objective.evaluate(xi_new))
         new_population[i] = self._compare_candidates(xi_new, xi)
 
-    def __parasite_phase(
+    def _parasite_phase(
         self,
         i: int,
         population: list[Candidate],
         new_population: list[Candidate],
         objective: Objective,
     ):
-        j = self.__get_random_index(i)
+        j = self._get_random_index(i)
         xj = population[j]
         xi = population[i]
         parasite_solution = xi.solution.copy()
@@ -114,7 +114,7 @@ class SymbioticOptimisation(Optimizer):
         new_population = population.copy()
         x_best = self._select_best(population)
         for i in range(len(population)):
-            self.__mutualism_phase(i, x_best, population, new_population, objective)
-            self.__commensalism_phase(i, x_best, population, new_population, objective)
-            self.__parasite_phase(i, population, new_population, objective)
+            self._mutualism_phase(i, x_best, population, new_population, objective)
+            self._commensalism_phase(i, x_best, population, new_population, objective)
+            self._parasite_phase(i, population, new_population, objective)
         return new_population

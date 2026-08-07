@@ -52,7 +52,7 @@ class EvoStrategy(Optimizer):
         self.strategy = strategy
         self.std = std
 
-    def __evaluate_population(
+    def _evaluate_population(
         self,
         population: list[Candidate],
         objective: Objective,
@@ -62,7 +62,7 @@ class EvoStrategy(Optimizer):
         sorted_population = self._sort_population(population)[: self.mu]
         return sorted_population
 
-    def __create_offspring(self, parent: Candidate, bounds: NDArray) -> Candidate:
+    def _create_offspring(self, parent: Candidate, bounds: NDArray) -> Candidate:
         child_solution = parent.solution + self.std * np.random.randn(len(bounds))
         child_solution = self._clip_bounds(child_solution, bounds)
         return Candidate(child_solution)
@@ -80,10 +80,10 @@ class EvoStrategy(Optimizer):
         offspring = []
         for candidate in population:
             for _ in range(self.lmda):
-                offspring.append(self.__create_offspring(candidate, objective.bounds))
+                offspring.append(self._create_offspring(candidate, objective.bounds))
         if self.strategy == 'comma':
-            new_population = self.__evaluate_population(offspring, objective)
+            new_population = self._evaluate_population(offspring, objective)
         elif self.strategy == 'plus':
-            new_population = self.__evaluate_population(population + offspring, objective)
+            new_population = self._evaluate_population(population + offspring, objective)
 
         return new_population

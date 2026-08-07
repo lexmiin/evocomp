@@ -40,18 +40,18 @@ class BeeColony(Optimizer):
         halt_criteria: HaltCriteria | None = None,
     ):
         super().__init__(epochs, operation, halt_criteria)
-        self.__size = size
-        self.__max_stagnation = max_stagnation
-        self.__stagnation_count = [0] * size
+        self._size = size
+        self._max_stagnation = max_stagnation
+        self._stagnation_count = [0] * size
 
-    def __fiti(self, bee: Candidate) -> float:
+    def _fiti(self, bee: Candidate) -> float:
         if bee.fitness >= 0:
             return 1 / (1 + bee.fitness)
         return 1 + np.abs(bee.fitness)
 
-    def __food_source(self, population: list[Candidate], current_index: int) -> np.ndarray:
+    def _food_source(self, population: list[Candidate], current_index: int) -> np.ndarray:
         current_solution = population[current_index].solution
-        idx_pool = np.delete(np.arange(self.__size), current_index)
+        idx_pool = np.delete(np.arange(self._size), current_index)
         random_bee: Candidate = population[random.choice(idx_pool)]
 
         phi = random.uniform(-1, 1, size=len(current_solution))
@@ -59,36 +59,36 @@ class BeeColony(Optimizer):
 
         return new_solution
 
-    def __employed_bee_phase(self, population: list[Candidate], objective: Objective):
-        for i in range(self.__size):
+    def _employed_bee_phase(self, population: list[Candidate], objective: Objective):
+        for i in range(self._size):
             bee = population[i]
-            new_solution = self.__food_source(population, i)
+            new_solution = self._food_source(population, i)
             new_solution = self._clip_bounds(new_solution, objective.bounds)
             fitness = objective.evaluate(new_solution)
             new_bee = Candidate(new_solution, fitness)
 
-            if self.__fiti(new_bee) > self.__fiti(bee):
+            if self._fiti(new_bee) > self._fiti(bee):
                 population[i] = new_bee
 
-    def __onlooker_bee_phase(self, population: list[Candidate], objective: Objective):
-        fitis = np.array([self.__fiti(bee) for bee in population])
+    def _onlooker_bee_phase(self, population: list[Candidate], objective: Objective):
+        fitis = np.array([self._fiti(bee) for bee in population])
         probabilities = fitis / np.sum(fitis)
 
-        for i in range(self.__size):
+        for i in range(self._size):
             if random.random() < probabilities[i]:
-                new_solution = self.__food_source(population, i)
+                new_solution = self._food_source(population, i)
                 new_solution = self._clip_bounds(new_solution, objective.bounds)
                 fitness = objective.evaluate(new_solution)
                 new_bee = Candidate(new_solution, fitness)
 
-                if self.__fiti(new_bee) > self.__fiti(population[i]):
+                if self._fiti(new_bee) > self._fiti(population[i]):
                     population[i] = new_bee
 
-    def __scout_bee_phase(self, population: list[Candidate], objective: Objective):
+    def _scout_bee_phase(self, population: list[Candidate], objective: Objective):
         best_bee = min(population, key=lambda x: x.fitness)
-        for i in range(self.__size):
+        for i in range(self._size):
             if population[i].fitness == best_bee.fitness:
-                if self.__stagnation_count[i] >= self.__max_stagnation:
+                if self._stagnation_count[i] >= self._max_stagnation:
                     new_solution = random.uniform(
                         objective.bounds[:, 0],
                         objective.bounds[:, 1],
@@ -97,13 +97,13 @@ class BeeColony(Optimizer):
                     fitness = objective.evaluate(new_solution)
                     new_bee = Candidate(new_solution, fitness)
                     population[i] = new_bee
-                    self.__stagnation_count[i] = 0
+                    self._stagnation_count[i] = 0
                 else:
-                    self.__stagnation_count[i] += 1
+                    self._stagnation_count[i] += 1
 
     def generate_init_population(self, objective: Objective) -> list[Candidate]:
         population = []
-        for _ in range(self.__size):
+        for _ in range(self._size):
             solution = random.uniform(objective.bounds[:, 0], objective.bounds[:, 1])
             fitness = objective.evaluate(solution)
             population.append(Candidate(solution, fitness))
@@ -115,7 +115,7 @@ class BeeColony(Optimizer):
         objective: Objective,
     ) -> list[Candidate]:
         new_population = population[:]
-        self.__employed_bee_phase(new_population, objective)
-        self.__onlooker_bee_phase(new_population, objective)
-        self.__scout_bee_phase(new_population, objective)
+        self._employed_bee_phase(new_population, objective)
+        self._onlooker_bee_phase(new_population, objective)
+        self._scout_bee_phase(new_population, objective)
         return new_population

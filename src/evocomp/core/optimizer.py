@@ -38,25 +38,25 @@ class Optimizer(ABC):
         operation: Literal['min', 'max'],
         halt_criteria: HaltCriteria | None = None,
     ) -> None:
-        self.__epochs = epochs if halt_criteria is None else float('inf')
-        self.__halt_criteria = halt_criteria
-        self.__history: list[Candidate] = []
-        self.__operation = operation
+        self._epochs = epochs if halt_criteria is None else float('inf')
+        self._halt_criteria = halt_criteria
+        self._history: list[Candidate] = []
+        self._operation = operation
 
     @property
     def best_candidate(self) -> Candidate:
         """Returns the best solution found during optimization."""
-        return self.__history[-1]
+        return self._history[-1]
 
     @property
     def epochs(self) -> int:
         """Returns the number of epochs completed during optimization."""
-        return len(self.__history) - 1
+        return len(self._history) - 1
 
     @property
     def history(self) -> list[Candidate]:
         """Returns the history of best solutions for each iteration."""
-        return self.__history.copy()
+        return self._history.copy()
 
     @abstractmethod
     def generate_init_population(self, objective: Objective) -> list[Candidate]:
@@ -85,12 +85,12 @@ class Optimizer(ABC):
             - Best solution at any point is available via .best_candidate
         """
         population = self.generate_init_population(objective)
-        self.__record_solutions(population)
+        self._record_solutions(population)
         epoch = 0
-        while epoch < self.__epochs:
+        while epoch < self._epochs:
             next_population = self.compute_next_population(population, objective)
-            self.__record_solutions(next_population)
-            if self.__should_halt(next_population, population):
+            self._record_solutions(next_population)
+            if self._should_halt(next_population, population):
                 return self._select_best(next_population)
             population = next_population
             epoch += 1
@@ -101,10 +101,10 @@ class Optimizer(ABC):
             candidate.fitness = objective.evaluate(candidate.solution)
 
     def _sort_population(self, population: list[Candidate]):
-        return sorted(population, key=lambda x: x.fitness, reverse=self.__operation == 'max')
+        return sorted(population, key=lambda x: x.fitness, reverse=self._operation == 'max')
 
     def _compare_candidates(self, one: Candidate, another: Candidate) -> Candidate:
-        if self.__operation == 'min':
+        if self._operation == 'min':
             return one if one.fitness < another.fitness else another
         else:
             return one if one.fitness > another.fitness else another
@@ -115,8 +115,8 @@ class Optimizer(ABC):
     def _clip_bounds(self, solution: NDArray, bounds: NDArray) -> NDArray:
         return np.clip(solution, bounds[:, 0], bounds[:, 1])
 
-    def __should_halt(self, children: list[Candidate], parents: list[Candidate]) -> bool:
-        return self.__halt_criteria is not None and self.__halt_criteria.halt(children, parents)
+    def _should_halt(self, children: list[Candidate], parents: list[Candidate]) -> bool:
+        return self._halt_criteria is not None and self._halt_criteria.halt(children, parents)
 
-    def __record_solutions(self, population: list[Candidate]):
-        self.__history.append(self._select_best(population))
+    def _record_solutions(self, population: list[Candidate]):
+        self._history.append(self._select_best(population))

@@ -52,10 +52,10 @@ class FractalStructurization(Optimizer):
         self.iteration = 0
         self.radii = np.full(self.size, 1 / self.size)
 
-    def __mean_fitness(self, population: list[Candidate]):
+    def _mean_fitness(self, population: list[Candidate]):
         return np.mean([candidate.fitness for candidate in population])
 
-    def __get_random_indexes(self, size: int) -> tuple[NDArray, NDArray]:
+    def _get_random_indexes(self, size: int) -> tuple[NDArray, NDArray]:
         i = random.choice(np.arange(size), size=size, replace=False)
         j = np.zeros(size, dtype=int)
         for idx in range(size):
@@ -63,24 +63,24 @@ class FractalStructurization(Optimizer):
             j[idx] = random.choice(list(choices))
         return i, j
 
-    def __form_pairs(self, population: list[Candidate]) -> list[tuple[Candidate, Candidate]]:
+    def _form_pairs(self, population: list[Candidate]) -> list[tuple[Candidate, Candidate]]:
         size = len(population)
-        i, j = self.__get_random_indexes(size)
+        i, j = self._get_random_indexes(size)
         return [(population[i[k]], population[j[k]]) for k in range(size)]
 
-    def __mean_pairs(self, pairs: list[tuple[Candidate, Candidate]]) -> list[Candidate]:
+    def _mean_pairs(self, pairs: list[tuple[Candidate, Candidate]]) -> list[Candidate]:
         return [Candidate((pair[0].solution + pair[1].solution) / 2) for pair in pairs]
 
-    def __delta(self, solution: float | NDArray, bound_diff: float | NDArray):
+    def _delta(self, solution: float | NDArray, bound_diff: float | NDArray):
         return random.uniform(solution - bound_diff, solution + bound_diff)
 
-    def __potential_candidate(
+    def _potential_candidate(
         self,
         candidate: Candidate,
         objective: Objective,
         fitness_avg: float,
     ) -> Candidate | None:
-        delta = self.__delta(candidate.solution, self.__bounds_diff(objective.bounds))
+        delta = self._delta(candidate.solution, self._bounds_diff(objective.bounds))
         potential_ind = Candidate(candidate.solution + delta)
         potential_ind.fitness = objective.evaluate(candidate.solution)
 
@@ -91,19 +91,18 @@ class FractalStructurization(Optimizer):
 
         return None
 
-    def __bounds_diff(self, bounds: NDArray):
+    def _bounds_diff(self, bounds: NDArray):
         return (bounds[:, 0] - bounds[:, 1]) / self.size
 
-    def __population_w(self, population: list[Candidate], objective: Objective):
-        fitness_avg = self.__mean_fitness(population)
-        mean_pairs = self.__mean_pairs(self.__form_pairs(population[self.size * 6 :]))
+    def _population_w(self, population: list[Candidate], objective: Objective):
+        fitness_avg = self._mean_fitness(population)
+        mean_pairs = self._mean_pairs(self._form_pairs(population[self.size * 6 :]))
         new_population = [
-            self.__potential_candidate(candidate, objective, fitness_avg)
-            for candidate in mean_pairs
+            self._potential_candidate(candidate, objective, fitness_avg) for candidate in mean_pairs
         ]
         return [candidate for candidate in new_population if candidate is not None]
 
-    def __population_c(self, pairs: list[tuple[Candidate, Candidate]], objective: Objective):
+    def _population_c(self, pairs: list[tuple[Candidate, Candidate]], objective: Objective):
         population = []
         for pair in pairs:
             r = random.choice([-1, 1])
@@ -114,13 +113,13 @@ class FractalStructurization(Optimizer):
             population.append(Candidate(c))
         return population
 
-    def __population_v(self, population: list[Candidate], objective: Objective):
+    def _population_v(self, population: list[Candidate], objective: Objective):
         population_v = []
         for candidate, r in zip(population, self.radii):
-            population_v.append(self.__offsprings(candidate, r / (self.iteration + 1), objective))
+            population_v.append(self._offsprings(candidate, r / (self.iteration + 1), objective))
         return population_v
 
-    def __offsprings(self, candidate: Candidate, r: float, objective: Objective) -> Candidate:
+    def _offsprings(self, candidate: Candidate, r: float, objective: Objective) -> Candidate:
         dimms = len(objective.bounds)
         k = random.randint(dimms)
         new_solution = np.random.uniform(candidate.solution - r, candidate.solution + r, size=dimms)
@@ -144,12 +143,12 @@ class FractalStructurization(Optimizer):
         population: list[Candidate],
         objective: Objective,
     ) -> list[Candidate]:
-        population_v = self.__population_v(population, objective)
+        population_v = self._population_v(population, objective)
         population_v = population_v + population
-        population_c = self.__population_c(self.__form_pairs(population_v), objective)
+        population_c = self._population_c(self._form_pairs(population_v), objective)
         self._compute_fitness(population_v, objective)
         population_v = self._sort_population(population_v)
-        population_w = self.__population_w(population_v, objective)
+        population_w = self._population_w(population_v, objective)
         new_population = population_v + population_c + population_w
         self._compute_fitness(new_population, objective)
         new_population = self._sort_population(new_population)[: self.size]

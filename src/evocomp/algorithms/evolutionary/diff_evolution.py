@@ -43,12 +43,12 @@ class DifferentialEvolution(Optimizer):
         self.crossover_rate = crossover_rate
         self.size = size
 
-    def __create_mutant(self, population: list[Candidate], idxs: NDArray) -> Candidate:
+    def _create_mutant(self, population: list[Candidate], idxs: NDArray) -> Candidate:
         i, j, k = idxs
         mutant = population[k].solution + self.f * (population[i].solution - population[j].solution)
         return Candidate(mutant)
 
-    def __create_trial(self, initial: Candidate, mutant: Candidate) -> Candidate:
+    def _create_trial(self, initial: Candidate, mutant: Candidate) -> Candidate:
         trial = np.array([])
         for i in range(len(mutant.solution)):
             random_index = random.randint(len(mutant.solution))
@@ -73,10 +73,10 @@ class DifferentialEvolution(Optimizer):
             idxs_pool = np.delete(np.arange(self.size), i)
             idxs = np.random.choice(idxs_pool, 3, replace=False)
 
-            mutant = self.__create_mutant(population, idxs)
+            mutant = self._create_mutant(population, idxs)
             mutant.solution = self._clip_bounds(mutant.solution, objective.bounds)
 
-            trial = self.__create_trial(candidate, mutant)
+            trial = self._create_trial(candidate, mutant)
 
             candidate.fitness = objective.evaluate(candidate.solution)
             trial.fitness = objective.evaluate(trial.solution)

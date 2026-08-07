@@ -51,7 +51,7 @@ class DeformedStars(Optimizer):
         self.alpha = np.radians(90)
         self.beta = np.radians(140)
 
-    def __get_random_indexes(self):
+    def _get_random_indexes(self):
         i = random.choice(np.arange(self.size), size=self.size, replace=False)
         j = np.zeros(self.size, dtype=int)
 
@@ -61,13 +61,13 @@ class DeformedStars(Optimizer):
 
         return i, j
 
-    def __correct_bounds(self, candidate: Candidate, objective: Objective):
+    def _correct_bounds(self, candidate: Candidate, objective: Objective):
         for i, bound in enumerate(objective.bounds):
             if candidate.solution[i] < bound[0] or candidate.solution[i] > bound[1]:
                 candidate.solution[i] = random.uniform(bound[0], bound[1])
         return candidate
 
-    def __form_triangles(self, population: list[Candidate]) -> list[list[Candidate]]:
+    def _form_triangles(self, population: list[Candidate]) -> list[list[Candidate]]:
         triangles = []
         pool = list(range(self.size))
         while len(pool) >= 3:
@@ -77,21 +77,21 @@ class DeformedStars(Optimizer):
             pool = [idx for idx in pool if idx not in random_idxs]
         return triangles
 
-    def __find_centroids(self, triangles: list[list[Candidate]]) -> list[NDArray]:
+    def _find_centroids(self, triangles: list[list[Candidate]]) -> list[NDArray]:
         centroids = []
         for triangle in triangles:
             centroid = np.mean([candidate.solution for candidate in triangle], axis=0)
             centroids.append(centroid)
         return centroids
 
-    def __find_optimal_fitness_points(self, triangles: list[list[Candidate]]) -> list[Candidate]:
+    def _find_optimal_fitness_points(self, triangles: list[list[Candidate]]) -> list[Candidate]:
         fitness_points = []
         for triangle in triangles:
             point = self._select_best(triangle)
             fitness_points.append(point)
         return fitness_points
 
-    def __get_r_triangles(
+    def _get_r_triangles(
         self, triangle: list[Candidate], centroid: NDArray, min_point: Candidate
     ) -> list[Candidate]:
         x = [point for point in triangle if point != min_point]
@@ -100,7 +100,7 @@ class DeformedStars(Optimizer):
         y_3 = (1 / self.k) * ((self.k - 1) * x[1].solution + y_1)
         return [Candidate(y_1), Candidate(y_2), Candidate(y_3)]
 
-    def __get_q_triangle(self, triangle: list[Candidate], objective: Objective):
+    def _get_q_triangle(self, triangle: list[Candidate], objective: Objective):
         triangle_new = copy.deepcopy(triangle)
         for idx, point in enumerate(triangle_new):
             rotation_axis = np.random.choice(
@@ -114,7 +114,7 @@ class DeformedStars(Optimizer):
             point.solution[l] = temp_k * np.sin(self.alpha) + point.solution[l] * np.cos(self.alpha)
         return triangle_new
 
-    def __get_u_triangle(self, triangle: list[Candidate], min_point: Candidate):
+    def _get_u_triangle(self, triangle: list[Candidate], min_point: Candidate):
         new_triangle = []
         for point in triangle:
             if point != min_point:
@@ -141,19 +141,19 @@ class DeformedStars(Optimizer):
     def compute_next_population(
         self, population: list[Candidate], objective: Objective
     ) -> list[Candidate]:
-        triangles = self.__form_triangles(population)
-        centroids = self.__find_centroids(triangles)
-        fitness_points = self.__find_optimal_fitness_points(triangles)
+        triangles = self._form_triangles(population)
+        centroids = self._find_centroids(triangles)
+        fitness_points = self._find_optimal_fitness_points(triangles)
 
         triangles_r = [
-            self.__get_r_triangles(t, c, m)
+            self._get_r_triangles(t, c, m)
             for (t, c, m) in zip(triangles, centroids, fitness_points)
         ]
-        triangles_q = [self.__get_q_triangle(t, objective) for t in triangles]
-        triangles_u = [self.__get_u_triangle(t, m) for t, m in zip(triangles, fitness_points)]
+        triangles_q = [self._get_q_triangle(t, objective) for t in triangles]
+        triangles_u = [self._get_u_triangle(t, m) for t, m in zip(triangles, fitness_points)]
 
         combined_population = [
-            self.__correct_bounds(candidate, objective)
+            self._correct_bounds(candidate, objective)
             for triangle in (triangles_r + triangles_q + triangles_u)
             for candidate in triangle
         ]
