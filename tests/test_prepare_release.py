@@ -2,7 +2,6 @@ import unittest
 
 from scripts.prepare_release import extract_release_notes
 from scripts.prepare_release import parse_version
-from scripts.prepare_release import update_project_version
 
 
 class PrepareReleaseTests(unittest.TestCase):
@@ -13,33 +12,6 @@ class PrepareReleaseTests(unittest.TestCase):
         for version in ('v1.2.3', '1.2', '1.2.3rc1', 'one.two.three'):
             with self.subTest(version=version), self.assertRaises(ValueError):
                 parse_version(version)
-
-    def test_updates_only_project_version(self) -> None:
-        content = """[project]
-name = "example"
-version = "0.1.0"
-
-[tool.example]
-version = "9.9.9"
-"""
-        self.assertEqual(
-            update_project_version(content, '0.2.0'),
-            """[project]
-name = "example"
-version = "0.2.0"
-
-[tool.example]
-version = "9.9.9"
-""",
-        )
-
-    def test_allows_initial_release_at_current_version(self) -> None:
-        content = '[project]\nversion = "0.1.0"\n'
-        self.assertEqual(update_project_version(content, '0.1.0'), content)
-
-    def test_rejects_version_regression(self) -> None:
-        with self.assertRaises(ValueError):
-            update_project_version('[project]\nversion = "1.0.0"\n', '0.9.0')
 
     def test_extracts_linked_release_section_body(self) -> None:
         changelog = """# Changelog

@@ -1,14 +1,10 @@
 name: Release
 
-run-name: Release v${{ inputs.version }}
+run-name: Release from ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: Version from pyproject.toml (without the v prefix)
-        required: true
-        type: string
       prerelease:
         description: Mark the GitHub release as a prerelease
         required: true
@@ -25,79 +21,37 @@ permissions:
 jobs:
   build:
     name: Build release distributions
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.package-version.outputs.version }}
     steps:
       - name: Check out the release commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Validate release inputs
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
-          TAG: v${{ inputs.version }}
-        run: |
-          set -euo pipefail
-
-          if [[ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]]; then
-            echo "Releases must run from the default branch ($DEFAULT_BRANCH), not $GITHUB_REF_NAME."
-            exit 1
-          fi
-
-          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid version: $RELEASE_VERSION (expected X.Y.Z)"
-            exit 1
-          fi
-
-          project_version="$(python3 - <<'PY'
-          import tomllib
-
-          with open('pyproject.toml', 'rb') as pyproject:
-              print(tomllib.load(pyproject)['project']['version'])
-          PY
-          )"
-
-          if [[ "$RELEASE_VERSION" != "$project_version" ]]; then
-            echo "Requested version $RELEASE_VERSION does not match pyproject.toml ($project_version)."
-            exit 1
-          fi
-
-          set +e
-          tag_lookup="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" 2>&1)"
-          tag_status=$?
-          set -e
-
-          if (( tag_status == 0 )); then
-            echo "Tag $TAG already exists."
-            exit 1
-          fi
-          if [[ "$tag_lookup" != *"HTTP 404"* ]]; then
-            echo "$tag_lookup"
-            exit "$tag_status"
-          fi
-
       - name: Install uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          version: 0.11.18
+          version: 0.12.1
+
+      - name: Read package version
+        id: package-version
+        run: echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
 
       - name: Extract reviewed release notes
         env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: uv run --frozen python scripts/prepare_release.py notes "$RELEASE_VERSION"
+          RELEASE_VERSION: ${{ steps.package-version.outputs.version }}
+        run: uv run --frozen python scripts/prepare_release.py "$RELEASE_VERSION"
 
       - name: Build wheel and source distribution
         run: |
           uv lock --check
-          uv build --out-dir dist
+          uv build --clear --no-sources --out-dir dist
 
-      - name: Verify release distributions
-        run: |
-          test "$(find dist -maxdepth 1 -name '*.whl' | wc -l)" -eq 1
-          test "$(find dist -maxdepth 1 -name '*.tar.gz' | wc -l)" -eq 1
-          uvx --from twine==6.2.0 twine check --strict dist/*
+      - name: Verify distribution metadata
+        run: uv run --frozen --group release twine check --strict dist/*
 
       - name: Upload release distributions
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -121,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/evocomp/${{ inputs.version }}/
+      url: https://pypi.org/project/evocomp/${{ needs.build.outputs.version }}/
     permissions:
       id-token: write
     steps:
@@ -136,7 +90,7 @@ jobs:
 
   publish-github:
     name: Create tag and GitHub release
-    needs: publish-pypi
+    needs: [build, publish-pypi]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -157,7 +111,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PRERELEASE: ${{ inputs.prerelease }}
-          TAG: v${{ inputs.version }}
+          TAG: v${{ needs.build.outputs.version }}
         run: |
           args=(
             "$TAG"
