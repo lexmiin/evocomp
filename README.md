@@ -14,14 +14,23 @@ You can also find Genetic Programming (GP) algorithm and Ant Colony Optimization
 
 ## Installation
 
+Install the package from PyPI with `uv`:
+
 ```bash
-# Install directly from GitHub into a uv-managed environment
-uv add git+https://github.com/lexmiin/evocomp.git
+uv add evocomp
+```
 
-# Include the optional visualization feature
-uv add 'evocomp[visual] @ git+https://github.com/lexmiin/evocomp.git'
+Visualization and spreadsheet export are available as an optional feature:
 
-# Or clone and set up the development environment
+```bash
+uv add 'evocomp[visual]'
+```
+
+## Development
+
+Clone the repository and install the locked development environment:
+
+```bash
 git clone https://github.com/lexmiin/evocomp.git
 cd evocomp
 uv sync
@@ -35,7 +44,8 @@ dependencies. Run project commands without manually activating the environment:
 uv run python examples/basic.py
 ```
 
-Visualization and spreadsheet export are available as an optional feature:
+Run examples that use the optional visualization dependencies with the `visual`
+extra:
 
 ```bash
 uv sync --extra visual
@@ -49,38 +59,6 @@ uv run ruff check .
 uv run ruff format --check .
 uv run --extra visual ty check src scripts examples
 ```
-
-## Releasing
-
-Releases use two manually started GitHub Actions workflows. **Prepare Release**
-updates the package version and lockfile, generates `CHANGELOG.md` from commit
-messages with git-cliff, and opens a release pull request for review. After that
-pull request is merged, **Release** builds the Python wheel and source
-distribution, publishes both to PyPI, and only then creates the `v<version>` tag
-and GitHub release with the reviewed notes and distributions attached.
-
-Before the first release:
-
-1. Create a GitHub environment named `pypi` and add any desired deployment
-   protection rules, such as required reviewer approval.
-2. In the repository's GitHub Actions settings, allow workflows to create pull
-   requests so **Prepare Release** can open its review branch.
-3. On PyPI, add a pending trusted publisher for project `evocomp` with owner
-   `lexmiin`, repository `evocomp`, workflow `release.yml`,
-   and environment `pypi`. No PyPI API token is required.
-
-Write commit descriptions as `<topic>: <summary>`, for example
-`algorithms: default crossover rate to 0.4 in diff evolution`. The topic is a
-human-readable area of change; Conventional Commits are not required.
-
-For each release:
-
-1. Open **Actions → Prepare Release → Run workflow**, select the default branch,
-   and enter the exact `X.Y.Z` version without a `v` prefix.
-2. Review and merge the generated release pull request, editing `CHANGELOG.md`
-   when the generated notes need clarification.
-3. Open **Actions → Release → Run workflow**, select the default branch, enter
-   the same version, and choose whether GitHub should mark it as a prerelease.
 
 ## Quick Start
 
