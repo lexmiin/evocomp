@@ -19,6 +19,7 @@ permissions: {}
 jobs:
   prepare:
     name: Prepare release pull request
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -30,40 +31,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Validate release input
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.version }}
-          TAG: v${{ inputs.version }}
-        run: |
-          set -euo pipefail
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: 0.12.1
 
-          if [[ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]]; then
-            echo "Release preparation must run from $DEFAULT_BRANCH, not $GITHUB_REF_NAME."
-            exit 1
-          fi
+      - name: Validate release version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
           if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid version: $RELEASE_VERSION (expected X.Y.Z)"
             exit 1
           fi
-          set +e
-          tag_lookup="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" 2>&1)"
-          tag_status=$?
-          set -e
-          if (( tag_status == 0 )); then
-            echo "Tag $TAG already exists."
-            exit 1
-          fi
-          if [[ "$tag_lookup" != *"HTTP 404"* ]]; then
-            echo "$tag_lookup"
-            exit "$tag_status"
-          fi
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          version: 0.11.18
 
       - name: Test the release preparation helper
         run: uv run --frozen python -m unittest discover -s tests
@@ -71,9 +51,7 @@ jobs:
       - name: Update package version and lockfile
         env:
           RELEASE_VERSION: ${{ inputs.version }}
-        run: |
-          uv run --frozen python scripts/prepare_release.py prepare "$RELEASE_VERSION"
-          uv lock
+        run: uv version "$RELEASE_VERSION" --no-sync
 
       - name: Generate changelog
         uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
@@ -89,7 +67,7 @@ jobs:
         env:
           RELEASE_VERSION: ${{ inputs.version }}
         run: >-
-          uv run --frozen python scripts/prepare_release.py notes "$RELEASE_VERSION"
+          uv run --frozen python scripts/prepare_release.py "$RELEASE_VERSION"
           --output "$RUNNER_TEMP/release-notes.md"
 
       - name: Upload prepared release files
@@ -131,13 +109,15 @@ jobs:
           token: ${{ github.token }}
           base: ${{ github.event.repository.default_branch }}
           branch: release/v${{ inputs.version }}
+          draft: always-true
           delete-branch: true
           commit-message: "release: prepare v${{ inputs.version }}"
           title: "release: prepare v${{ inputs.version }}"
           body: |
             Prepares release `v${{ inputs.version }}`.
 
-            Review the package version, lockfile, and generated changelog before merging.
+            Review the package version, lockfile, and generated changelog, then mark
+            the pull request ready for review to run the required checks.
           add-paths: |
             pyproject.toml
             uv.lock

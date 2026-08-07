@@ -122,5 +122,5 @@ Development tools are installed by default and run through `uv`:
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uv run --extra visual ty check src scripts examples
+uv run --extra visual ty check
 ```
