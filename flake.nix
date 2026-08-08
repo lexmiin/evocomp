@@ -23,6 +23,7 @@
           pkgs.uv
           pkgs.git-cliff
           pkgs.zizmor
+          pkgs.just
         ];
       };
     }
