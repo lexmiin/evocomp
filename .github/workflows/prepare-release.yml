@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Test the release preparation helper
-        run: uv run --frozen python -m unittest discover -s tests
+        run: uv run --frozen pytest tests/test_prepare_release.py
 
       - name: Update package version and lockfile
         env:

@@ -18,6 +18,7 @@ visual = [
 
 [dependency-groups]
 dev = [
+  "pytest>=9.1.1",
   "ruff>=0.9.0",
   "scipy>=1.11.4",
   "ty>=0.0.64",
@@ -51,3 +52,6 @@ force-single-line = true
 
 [tool.uv.dependency-groups]
 dev = { requires-python = ">=3.11" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
