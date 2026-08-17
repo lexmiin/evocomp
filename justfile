@@ -1,6 +1,6 @@
 set default-list
 
-check: lint typecheck format-check test
+check: lint typecheck fmt-check test
 
 test:
     uv run pytest
@@ -11,10 +11,10 @@ lint:
 typecheck:
     uv run ty check
 
-format-check:
+fmt-check:
     uv run ruff format --check
 
-format:
+fmt:
     uv run ruff format
 
 install:
