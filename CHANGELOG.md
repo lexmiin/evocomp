@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.0](https://github.com/lexmiin/evocomp/compare/v0.2.0..v0.3.0) - 2026-09-14
+
+### Internal
+
+- ci: add lint/format/type checks workflow by [@lexmiin](https://github.com/lexmiin) in [#4](https://github.com/lexmiin/evocomp/pull/4)
+- ci: simplify release workflows by [@lexmiin](https://github.com/lexmiin) in [#5](https://github.com/lexmiin/evocomp/pull/5)
+- ci: add renovate config by [@lexmiin](https://github.com/lexmiin) ([4632a20](https://github.com/lexmiin/evocomp/commit/4632a207142405191b9ec8b875fe847d946d858d))
+- chore(deps): update dependency astral-sh/uv to v0.12.3 by [@renovate[bot]](https://github.com/renovate[bot]) in [#6](https://github.com/lexmiin/evocomp/pull/6)
+- ci: publish releases with uv attestations by [@lexmiin](https://github.com/lexmiin) in [#8](https://github.com/lexmiin/evocomp/pull/8)
+- ci: use same uv version across jobs/steps by [@lexmiin](https://github.com/lexmiin) ([68e4e22](https://github.com/lexmiin/evocomp/commit/68e4e22780448265d246ba7ef3c14a26623257ad))
+- test: add halt and optmizer tests by [@lexmiin](https://github.com/lexmiin) in [#10](https://github.com/lexmiin/evocomp/pull/10)
+- chore: add justfile for running routine commands by [@lexmiin](https://github.com/lexmiin) in [#11](https://github.com/lexmiin/evocomp/pull/11)
+- chore(deps): update dependency astral-sh/uv to v0.12.4 by [@renovate[bot]](https://github.com/renovate[bot]) in [#9](https://github.com/lexmiin/evocomp/pull/9)
+- chore(deps): update dependency astral-sh/uv to v0.12.5 by [@renovate[bot]](https://github.com/renovate[bot]) in [#13](https://github.com/lexmiin/evocomp/pull/13)
+- chore(deps): lock file maintenance by [@renovate[bot]](https://github.com/renovate[bot]) in [#14](https://github.com/lexmiin/evocomp/pull/14)
+- chore(deps): update astral-sh/setup-uv action to v10 by [@renovate[bot]](https://github.com/renovate[bot]) in [#12](https://github.com/lexmiin/evocomp/pull/12)
+- chore(deps): lock file maintenance by [@renovate[bot]](https://github.com/renovate[bot]) in [#15](https://github.com/lexmiin/evocomp/pull/15)
+- chore(deps): update dependency astral-sh/uv to v0.12.7 by [@renovate[bot]](https://github.com/renovate[bot]) in [#16](https://github.com/lexmiin/evocomp/pull/16)
+- chore(deps): lock file maintenance by [@renovate[bot]](https://github.com/renovate[bot]) in [#17](https://github.com/lexmiin/evocomp/pull/17)
+- chore(deps): update dependency astral-sh/uv to v0.12.9 by [@renovate[bot]](https://github.com/renovate[bot]) in [#18](https://github.com/lexmiin/evocomp/pull/18)
+- chore(deps): update orhun/git-cliff-action action to v4.9.0 by [@renovate[bot]](https://github.com/renovate[bot]) in [#19](https://github.com/lexmiin/evocomp/pull/19)
+- chore(deps): update dependency astral-sh/uv to v0.12.13 by [@renovate[bot]](https://github.com/renovate[bot]) in [#20](https://github.com/lexmiin/evocomp/pull/20)
+- chore(deps): update astral-sh/setup-uv action to v10.1.0 by [@renovate[bot]](https://github.com/renovate[bot]) in [#21](https://github.com/lexmiin/evocomp/pull/21)
+- chore(deps): lock file maintenance by [@renovate[bot]](https://github.com/renovate[bot]) in [#22](https://github.com/lexmiin/evocomp/pull/22)
+
+
+### New contributors
+
+- @renovate[bot] made their first contribution in [#22](https://github.com/lexmiin/evocomp/pull/22)
+
 ## [0.2.0](https://github.com/lexmiin/evocomp/compare/v0.1.0..v0.2.0) - 2026-08-07
 
 ### Changes
